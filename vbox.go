@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/golang/glog"
 	"os/exec"
 	"os/user"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/golang/glog"
 )
 
 const (
@@ -98,8 +99,9 @@ func (vb *VBox) getVMSettingsFile(vm *VirtualMachine) string {
 }
 
 func (vb *VBox) manage(args ...string) (string, error) {
-	cmd := exec.Command(VBoxManage, args...)
-	glog.V(4).Infof("COMMAND: %v %v", VBoxManage, strings.Join(args, " "))
+	vboxManage := vboxManagePath()
+	cmd := exec.Command(vboxManage, args...)
+	glog.V(4).Infof("COMMAND: %v %v", vboxManage, strings.Join(args, " "))
 
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
