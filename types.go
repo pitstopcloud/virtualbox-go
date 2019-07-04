@@ -31,12 +31,14 @@ func (d DiskType) ForShowMedium() string {
 
 type Disk struct {
 	// Path represents the absolute path in the system where the disk is stored, normally is under the vm folder
-	Path       string
-	SizeMB     int64
-	Format     DiskFormat
-	UUID       string
-	Controller StorageControllerAttachment
-	Type       DiskType
+	Path          string
+	SizeMB        int64
+	Format        DiskFormat
+	UUID          string
+	Controller    StorageControllerAttachment
+	Type          DiskType
+	NonRotational bool
+	AutoDiscard   bool
 }
 
 type StorageControllerAttachment struct {
