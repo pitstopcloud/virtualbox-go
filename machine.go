@@ -57,10 +57,29 @@ func (vb *VBox) AddStorageController(vm *VirtualMachine, ctr StorageController) 
 }
 
 func (vb *VBox) AttachStorage(vm *VirtualMachine, disk *Disk) error {
-
-	_, err := vb.manage("storageattach", vm.Spec.Name, "--storagectl", disk.Controller.Name,
-		"--port", strconv.Itoa(disk.Controller.Port), "--device", strconv.Itoa(disk.Controller.Device),
-		"--type", string(disk.Type), "--medium", disk.Path)
+	nonRotational := "off"
+	if disk.NonRotational {
+		nonRotational = "on"
+	}
+	autoDiscard := "off"
+	if disk.AutoDiscard {
+		if disk.Format != VDI {
+			glog.Warning(
+				"Disk format ", disk.Format, " is not VDI. ",
+				"Ignoring AutoDiscard.")
+		} else {
+			autoDiscard = "on"
+		}
+	}
+	_, err := vb.manage(
+		"storageattach", vm.Spec.Name,
+		"--storagectl", disk.Controller.Name,
+		"--port", strconv.Itoa(disk.Controller.Port),
+		"--device", strconv.Itoa(disk.Controller.Device),
+		"--type", string(disk.Type),
+		"--medium", disk.Path,
+		"--nonrotational", nonRotational,
+		"--discard", autoDiscard)
 
 	return err
 }
