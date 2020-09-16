@@ -80,7 +80,7 @@ func CreateVM() {
 
 ### Get VM Info
 ```go
-func GetVMInfo(name string) (machine *vbm.VirtualMachine, err error) {
+func GetVMInfo(name string) (machine *vbg.VirtualMachine, err error) {
     vb := vbg.NewVBox(vbg.Config{})
     return vb.VMInfo(name)
 }
