@@ -210,6 +210,9 @@ func (vb *VBox) AddNic(vm *VirtualMachine, nic *NIC) error {
 	}
 
 	args = append(args, fmt.Sprintf("--nictype%d", nic.Index), string(nic.Type))
+	if nic.MAC != "" {
+		args = append(args, fmt.Sprintf("--macaddress%d", nic.Index), nic.MAC)
+	}
 
 	_, err := vb.modify(vm, args...)
 	return err

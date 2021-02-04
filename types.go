@@ -100,7 +100,7 @@ type NIC struct {
 	Speedkbps       int
 	BootPrio        int
 	PromiscuousMode string
-	MAC             string //auto assigns mac automatically
+	MAC             string
 }
 
 type Network struct {
