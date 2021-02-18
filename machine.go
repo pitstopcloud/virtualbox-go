@@ -135,6 +135,11 @@ func (vb *VBox) Reset(vm *VirtualMachine) (string, error) {
 func (vb *VBox) EnableIOAPIC(vm *VirtualMachine) (string, error) {
 	return vb.modify(vm, "--ioapic", "on")
 }
+
+func (vb *VBox) EnableEFI(vm *VirtualMachine) (string, error) {
+	return vb.modify(vm, "--firmware", "efi")
+}
+
 func (vb *VBox) VMInfo(uuidOrVmName string) (machine *VirtualMachine, err error) {
 	out, err := vb.manage("showvminfo", uuidOrVmName, "--machinereadable")
 
