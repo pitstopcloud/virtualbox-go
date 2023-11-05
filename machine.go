@@ -159,6 +159,7 @@ func (vb *VBox) VMInfo(uuidOrVmName string) (machine *VirtualMachine, err error)
 
 	vm.Spec.CPU.Count = m["cpus"].(int)
 	vm.Spec.Memory.SizeMB = m["memory"].(int)
+	vm.Spec.State = VirtualMachineState(m["VMState"].(string))
 
 	// fill in storage details
 	vm.Spec.StorageControllers = make([]StorageController, 0, 2)

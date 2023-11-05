@@ -13,9 +13,11 @@ const (
 
 type DiskType string
 
-const DVDDrive = DiskType("dvddrive")
-const HDDrive = DiskType("hdd")
-const FDDrive = DiskType("fdd")
+const (
+	DVDDrive = DiskType("dvddrive")
+	HDDrive  = DiskType("hdd")
+	FDDrive  = DiskType("fdd")
+)
 
 func (d DiskType) ForShowMedium() string {
 	switch d {
@@ -28,6 +30,16 @@ func (d DiskType) ForShowMedium() string {
 	}
 	return ""
 }
+
+type VirtualMachineState string
+
+const (
+	Poweroff = VirtualMachineState("poweroff")
+	Running  = VirtualMachineState("running")
+	Paused   = VirtualMachineState("paused")
+	Saved    = VirtualMachineState("saved")
+	Aborted  = VirtualMachineState("aborted")
+)
 
 type Disk struct {
 	// Path represents the absolute path in the system where the disk is stored, normally is under the vm folder
@@ -127,6 +139,7 @@ type VirtualMachineSpec struct {
 	OSType             OSType
 	StorageControllers []StorageController
 	Boot               []BootDevice
+	State              VirtualMachineState
 }
 
 type VirtualMachine struct {
