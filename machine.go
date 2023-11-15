@@ -2,6 +2,7 @@ package virtualbox
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,6 +11,8 @@ import (
 
 	"github.com/golang/glog"
 )
+
+var ErrMachineNotExist = errors.New("VM does not exist")
 
 func (vb *VBox) CreateVM(vm *VirtualMachine) error {
 
@@ -121,6 +124,9 @@ func (vb *VBox) EnableIOAPIC(vm *VirtualMachine) (string, error) {
 }
 func (vb *VBox) VMInfo(uuidOrVmName string) (machine *VirtualMachine, err error) {
 	out, err := vb.manage("showvminfo", uuidOrVmName, "--machinereadable")
+	if err != nil {
+		return nil, ErrMachineNotExist
+	}
 
 	// lets populate the map from output strings
 	m := map[string]interface{}{}
