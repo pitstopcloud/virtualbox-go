@@ -71,7 +71,7 @@ func (vb *VBox) AttachStorage(vm *VirtualMachine, disk *Disk) error {
 	return err
 }
 
-func (vb *VBox) ModifyVM(vm *VirtualMachine, parameters ...string) error {
+func (vb *VBox) ModifyVM(vm *VirtualMachine, parameters []string) error {
 	if len(parameters) == 0 {
 		return errors.New("No parameters to change")
 	}
