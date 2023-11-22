@@ -71,6 +71,75 @@ func (vb *VBox) AttachStorage(vm *VirtualMachine, disk *Disk) error {
 	return err
 }
 
+func (vb *VBox) ModifyVM(vm *VirtualMachine, parameters ...string) error {
+	if len(parameters) == 0 {
+		return errors.New("No parameters to change")
+	}
+	args := []string{"modifyvm", vm.UUIDOrName()}
+	for _, s := range parameters {
+		switch s {
+		case "name":
+			args = append(args, "--name", vm.Spec.Name)
+		case "group":
+			args = append(args, "--groups", vm.Spec.Group)
+		case "ostype":
+			args = append(args, "--ostype", vm.Spec.OSType.ID)
+		case "memory":
+			args = append(args, "--memory", strconv.Itoa(vm.Spec.Memory.SizeMB))
+		case "cpus":
+			args = append(args, "--cpus", strconv.Itoa(vm.Spec.CPU.Count))
+		case "boot_order":
+			for i, b := range vm.Spec.Boot {
+				args = append(args, fmt.Sprintf("--boot%d", i+1), string(b))
+			}
+		case "network_adapter":
+			for _, nic := range vm.Spec.NICs {
+				cableConnected := "off"
+				if nic.CableConnected {
+					cableConnected = "on"
+				}
+				args = append(args,
+					fmt.Sprintf("--nic%d", nic.Index), string(nic.Mode),
+					fmt.Sprintf("--nictype%d", nic.Index), string(nic.Type),
+					fmt.Sprintf("--cableconnected%d", nic.Index), cableConnected)
+				switch nic.Mode {
+				case NWMode_bridged:
+					args = append(args, fmt.Sprintf("--bridgeadapter%d", nic.Index), nic.NetworkName)
+				case NWMode_hostonly:
+					args = append(args, fmt.Sprintf("--hostonlyadapter%d", nic.Index), nic.NetworkName)
+				case NWMode_intnet:
+					args = append(args, fmt.Sprintf("--intnet%d", nic.Index), nic.NetworkName)
+				case NWMode_natnetwork:
+					args = append(args, fmt.Sprintf("--nat-network%d", nic.Index), nic.NetworkName)
+				}
+			}
+		default:
+			return errors.New("Invalid parameter in the arguments")
+		}
+	}
+	_, err := vb.manage(args...)
+	return err
+}
+
+func (vb *VBox) ControlVM(vm *VirtualMachine, state string) (string, error) {
+	switch state {
+	case "running":
+		return vb.manage("startvm", vm.UUIDOrName(), "--type", "headless")
+	case "poweroff":
+		return vb.manage("controlvm", vm.UUIDOrName(), "poweroff")
+	case "pause":
+		return vb.manage("controlvm", vm.UUIDOrName(), "pause")
+	case "resume":
+		return vb.manage("controlvm", vm.UUIDOrName(), "resume")
+	case "reset":
+		return vb.manage("controlvm", vm.UUIDOrName(), "reset")
+	case "save":
+		return vb.manage("controlvm", vm.UUIDOrName(), "savestate")
+	default:
+		return "", errors.New("Invalid state")
+	}
+}
+
 func (vb *VBox) SetMemory(vm *VirtualMachine, sizeMB int) error {
 	_, err := vb.modify(vm, "--memory", strconv.Itoa(sizeMB))
 	return err
