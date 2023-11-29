@@ -140,16 +140,32 @@ func (vb *VBox) ControlVM(vm *VirtualMachine, state string) (string, error) {
 	}
 }
 
+// Functions over modifyvm
+// Sets the amount of RAM, in MB, that the virtual machine should allocate for itself from the host
 func (vb *VBox) SetMemory(vm *VirtualMachine, sizeMB int) error {
 	_, err := vb.modify(vm, "--memory", strconv.Itoa(sizeMB))
 	return err
 }
 
+// Sets the number of virtual CPUs for the virtual machine
 func (vb *VBox) SetCPUCount(vm *VirtualMachine, cpus int) error {
 	_, err := vb.modify(vm, "--cpus", strconv.Itoa(cpus))
 	return err
 }
 
+// Sets the amount of RAM that the virtual graphics card should have
+func (vb *VBox) SetVRam(vm *VirtualMachine, vram int) error {
+	_, err := vb.modify(vm, "--vram", strconv.Itoa(vram))
+	return err
+}
+
+// The Page Fusion feature minimises memory duplication between VMs with similar configurations running on the same host
+func (vb *VBox) SetPageFusion(vm *VirtualMachine) error {
+	_, err := vb.modify(vm, "--pagefusion on")
+	return err
+}
+
+// Specifies the boot order for the virtual machine
 func (vb *VBox) SetBootOrder(vm *VirtualMachine, bootOrder []BootDevice) error {
 	args := []string{}
 	for i, b := range bootOrder {
@@ -229,7 +245,7 @@ func (vb *VBox) VMInfo(uuidOrVmName string) (machine *VirtualMachine, err error)
 		}
 	}
 	if path != vb.getVMSettingsFile(vm) {
-		return nil, fmt.Errorf("path %s does not match expected structure", path)
+		//return nil, fmt.Errorf("path %s does not match expected structure", path)
 	}
 
 	vm.Spec.CPU.Count = m["cpus"].(int)
