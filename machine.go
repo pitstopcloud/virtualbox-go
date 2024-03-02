@@ -51,6 +51,63 @@ func (vb *VBox) UnRegisterVM(vm *VirtualMachine) error {
 	return err
 }
 
+func (vb *VBox) Snapshot(vm *VirtualMachine) error {
+	_, err := vb.manage("snapshot", vm.Spec.Name)
+	return err
+}
+
+func (vb *VBox) TakeSnapshot(vm *VirtualMachine, snapshot Snapshot) error {
+	args := []string{"snapshot", vm.Spec.Name, "take", snapshot.Name}
+	if snapshot.Description != "" {
+		args = append(args, "--description=", snapshot.Description)
+	}
+
+	if snapshot.live {
+		args = append(args, "--live")
+	}
+
+	_, err := vb.manage(args...)
+	return err
+}
+
+func (vb *VBox) DeleteSnapshot(vm *VirtualMachine, snapshot Snapshot) error {
+	_, err := vb.manage("snapshot", vm.Spec.Name, "delete", snapshot.Name)
+	return err
+}
+
+func (vb *VBox) RestoreSnapshot(vm *VirtualMachine, snapshot Snapshot) error {
+	_, err := vb.manage("snapshot", vm.Spec.Name, "restore", snapshot.Name)
+	return err
+}
+
+func (vb *VBox) EditSnapshot(vm *VirtualMachine, snapshot Snapshot, newSh Snapshot, current bool) error {
+	var args []string
+	if current {
+		args = []string{"snapshot", vm.Spec.Name, "edit", "--current"}
+	} else {
+		args = []string{"snapshot", vm.Spec.Name, "edit", snapshot.Name}
+	}
+
+	if newSh.Description != "" {
+		args = append(args, "--description=", snapshot.Description)
+	}
+
+	if newSh.Name != "" && newSh.Name != snapshot.Name {
+		args = append(args, "--name", newSh.Name)
+	}
+
+	_, err := vb.manage(args...)
+	return err
+}
+
+func (vb *VBox) ListOfSnapshots(vm *VirtualMachine) (string, error) {
+	return vb.manage("snapshot", vm.Spec.Name, "list")
+}
+
+func (vb *VBox) showSnapshotInfo(vm *VirtualMachine, snapshot Snapshot) (string, error) {
+	return vb.manage("snapshot", vm.Spec.Name, "showvminfo", snapshot.Name)
+}
+
 func (vb *VBox) AddStorageController(vm *VirtualMachine, ctr StorageController) error {
 
 	_, err := vb.manage("storagectl", vm.UUIDOrName(), "--name", ctr.Name, "--add", string(ctr.Type))

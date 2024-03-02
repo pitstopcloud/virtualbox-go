@@ -70,6 +70,12 @@ type StorageController struct {
 	Bootable  string //on, off
 }
 
+type Snapshot struct {
+	Name        string
+	Description string
+	live        bool
+}
+
 type CPU struct {
 	Count int
 }
