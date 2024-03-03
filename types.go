@@ -73,7 +73,6 @@ type StorageController struct {
 type Snapshot struct {
 	Name        string
 	Description string
-	live        bool
 }
 
 type CPU struct {
@@ -146,6 +145,7 @@ type VirtualMachineSpec struct {
 	StorageControllers []StorageController
 	Boot               []BootDevice
 	State              VirtualMachineState
+	Snapshot           Snapshot
 }
 
 type VirtualMachine struct {

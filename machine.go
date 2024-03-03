@@ -62,9 +62,7 @@ func (vb *VBox) TakeSnapshot(vm *VirtualMachine, snapshot Snapshot) error {
 		args = append(args, "--description=", snapshot.Description)
 	}
 
-	if snapshot.live {
-		args = append(args, "--live")
-	}
+	args = append(args, "--live")
 
 	_, err := vb.manage(args...)
 	return err
@@ -80,19 +78,14 @@ func (vb *VBox) RestoreSnapshot(vm *VirtualMachine, snapshot Snapshot) error {
 	return err
 }
 
-func (vb *VBox) EditSnapshot(vm *VirtualMachine, snapshot Snapshot, newSh Snapshot, current bool) error {
-	var args []string
-	if current {
-		args = []string{"snapshot", vm.Spec.Name, "edit", "--current"}
-	} else {
-		args = []string{"snapshot", vm.Spec.Name, "edit", snapshot.Name}
+func (vb *VBox) EditSnapshot(vm *VirtualMachine, newSh Snapshot) error {
+	args := []string{"snapshot", vm.Spec.Name, "edit", "--current"}
+
+	if newSh.Description != "" && newSh.Description != vm.Spec.Snapshot.Description {
+		args = append(args, "--description=", newSh.Description)
 	}
 
-	if newSh.Description != "" {
-		args = append(args, "--description=", snapshot.Description)
-	}
-
-	if newSh.Name != "" && newSh.Name != snapshot.Name {
+	if newSh.Name != "" && newSh.Name != vm.Spec.Snapshot.Name {
 		args = append(args, "--name", newSh.Name)
 	}
 
@@ -308,6 +301,35 @@ func (vb *VBox) VMInfo(uuidOrVmName string) (machine *VirtualMachine, err error)
 	vm.Spec.CPU.Count = m["cpus"].(int)
 	vm.Spec.Memory.SizeMB = m["memory"].(int)
 	vm.Spec.State = VirtualMachineState(m["VMState"].(string))
+	_, ok := m["CurrentSnapshotName"]
+	if ok {
+		vm.Spec.Snapshot.Name = m["CurrentSnapshotName"].(string)
+	} else {
+		vm.Spec.Snapshot.Name = ""
+	}
+
+	helper := func(str string) string {
+		sub_string := ""
+		for symbol := range str {
+			if symbol == '1' {
+				sub_string += "-1"
+			}
+		}
+		return sub_string
+	}
+
+	val, ok := m["CurrentSnapshotNode"]
+	if ok {
+		param := "SnapshotDescription" + helper(val.(string))
+		_, ok := m[param]
+		if ok {
+			vm.Spec.Snapshot.Description = m[param].(string)
+		} else {
+			vm.Spec.Snapshot.Description = ""
+		}
+	} else {
+		vm.Spec.Snapshot.Description = ""
+	}
 
 	// fill in storage details
 	vm.Spec.StorageControllers = make([]StorageController, 0, 2)
