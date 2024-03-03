@@ -51,18 +51,16 @@ func (vb *VBox) UnRegisterVM(vm *VirtualMachine) error {
 	return err
 }
 
-func (vb *VBox) Snapshot(vm *VirtualMachine) error {
-	_, err := vb.manage("snapshot", vm.Spec.Name)
-	return err
-}
-
-func (vb *VBox) TakeSnapshot(vm *VirtualMachine, snapshot Snapshot) error {
+func (vb *VBox) TakeSnapshot(vm *VirtualMachine, snapshot Snapshot, live bool) error {
 	args := []string{"snapshot", vm.Spec.Name, "take", snapshot.Name}
 	if snapshot.Description != "" {
-		args = append(args, "--description=", snapshot.Description)
+		param := fmt.Sprintf("--description=%s", snapshot.Description)
+		args = append(args, param)
 	}
 
-	args = append(args, "--live")
+	if live {
+		args = append(args, "--live")
+	}
 
 	_, err := vb.manage(args...)
 	return err
@@ -82,7 +80,8 @@ func (vb *VBox) EditSnapshot(vm *VirtualMachine, newSh Snapshot) error {
 	args := []string{"snapshot", vm.Spec.Name, "edit", "--current"}
 
 	if newSh.Description != "" && newSh.Description != vm.Spec.Snapshot.Description {
-		args = append(args, "--description=", newSh.Description)
+		param := fmt.Sprintf("--description=%s", newSh.Description)
+		args = append(args, param)
 	}
 
 	if newSh.Name != "" && newSh.Name != vm.Spec.Snapshot.Name {
