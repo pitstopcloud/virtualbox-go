@@ -325,15 +325,23 @@ func (vb *VBox) VMInfo(uuidOrVmName string) (machine *VirtualMachine, err error)
 	for _, ok := m["SnapshotName"+subStringGenerator(count)]; ok; count++ {
 
 		var description string
-		_, ok := m["SnapshotDescription"+subStringGenerator(count-1)]
+		val, ok := m["SnapshotDescription"+subStringGenerator(count-1)]
 		if ok {
-			description = m["SnapshotDescription"+subStringGenerator(count-1)].(string)
+			description = val.(string)
 		} else {
 			description = ""
 		}
 
+		var name string
+		val, ok = m["SnapshotName"+subStringGenerator(count-1)]
+		if ok {
+			name = val.(string)
+		} else {
+			name = ""
+		}
+
 		listOfSnapshots = append(listOfSnapshots, Snapshot{
-			Name:        m["SnapshotName"+subStringGenerator(count-1)].(string),
+			Name:        name,
 			Description: description,
 		})
 	}
