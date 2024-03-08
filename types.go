@@ -145,7 +145,8 @@ type VirtualMachineSpec struct {
 	StorageControllers []StorageController
 	Boot               []BootDevice
 	State              VirtualMachineState
-	Snapshot           Snapshot
+	Snapshots          []Snapshot
+	CurrentSnapshot    Snapshot
 }
 
 type VirtualMachine struct {

@@ -76,15 +76,15 @@ func (vb *VBox) RestoreSnapshot(vm *VirtualMachine, snapshot Snapshot) error {
 	return err
 }
 
-func (vb *VBox) EditSnapshot(vm *VirtualMachine, newSh Snapshot) error {
-	args := []string{"snapshot", vm.Spec.Name, "edit", "--current"}
+func (vb *VBox) EditSnapshot(vm *VirtualMachine, prevSnapshot Snapshot, newSh Snapshot) error {
+	args := []string{"snapshot", vm.Spec.Name, "edit", prevSnapshot.Name}
 
-	if newSh.Description != "" && newSh.Description != vm.Spec.Snapshot.Description {
+	if newSh.Description != "" && newSh.Description != prevSnapshot.Description {
 		param := fmt.Sprintf("--description=%s", newSh.Description)
 		args = append(args, param)
 	}
 
-	if newSh.Name != "" && newSh.Name != vm.Spec.Snapshot.Name {
+	if newSh.Name != "" && newSh.Name != prevSnapshot.Name {
 		args = append(args, "--name", newSh.Name)
 	}
 
@@ -300,13 +300,8 @@ func (vb *VBox) VMInfo(uuidOrVmName string) (machine *VirtualMachine, err error)
 	vm.Spec.CPU.Count = m["cpus"].(int)
 	vm.Spec.Memory.SizeMB = m["memory"].(int)
 	vm.Spec.State = VirtualMachineState(m["VMState"].(string))
-	_, ok := m["CurrentSnapshotName"]
-	if ok {
-		vm.Spec.Snapshot.Name = m["CurrentSnapshotName"].(string)
-	} else {
-		vm.Spec.Snapshot.Name = ""
-	}
 
+	//Snapshots--------------------------
 	helper := func(str string) string {
 		sub_string := ""
 		for symbol := range str {
@@ -317,18 +312,53 @@ func (vb *VBox) VMInfo(uuidOrVmName string) (machine *VirtualMachine, err error)
 		return sub_string
 	}
 
+	subStringGenerator := func(count int) string {
+		result := ""
+		for i := 0; i < count; i++ {
+			result += "-1"
+		}
+		return result
+	}
+
+	listOfSnapshots := make([]Snapshot, 0, 3)
+	count := 0
+	for _, ok := m["SnapshotName"+subStringGenerator(count)]; ok; count++ {
+
+		var description string
+		_, ok := m["SnapshotDescription"+subStringGenerator(count-1)]
+		if ok {
+			description = m["SnapshotDescription"+subStringGenerator(count-1)].(string)
+		} else {
+			description = ""
+		}
+
+		listOfSnapshots = append(listOfSnapshots, Snapshot{
+			Name:        m["SnapshotName"+subStringGenerator(count-1)].(string),
+			Description: description,
+		})
+	}
+	vm.Spec.Snapshots = listOfSnapshots
+
+	_, ok := m["CurrentSnapshotName"]
+	if ok {
+		vm.Spec.CurrentSnapshot.Name = m["CurrentSnapshotName"].(string)
+	} else {
+		vm.Spec.CurrentSnapshot.Name = ""
+	}
+
 	val, ok := m["CurrentSnapshotNode"]
 	if ok {
 		param := "SnapshotDescription" + helper(val.(string))
 		_, ok := m[param]
 		if ok {
-			vm.Spec.Snapshot.Description = m[param].(string)
+			vm.Spec.CurrentSnapshot.Description = m[param].(string)
 		} else {
-			vm.Spec.Snapshot.Description = ""
+			vm.Spec.CurrentSnapshot.Description = ""
 		}
 	} else {
-		vm.Spec.Snapshot.Description = ""
+		vm.Spec.CurrentSnapshot.Description = ""
 	}
+	//------------------------------------
 
 	// fill in storage details
 	vm.Spec.StorageControllers = make([]StorageController, 0, 2)
