@@ -322,10 +322,14 @@ func (vb *VBox) VMInfo(uuidOrVmName string) (machine *VirtualMachine, err error)
 
 	listOfSnapshots := make([]Snapshot, 0, 3)
 	count := 0
-	for _, ok := m["SnapshotName"+subStringGenerator(count)]; ok; count++ {
+	subStr := ""
+	for {
+		if _, ok := m["SnapshotName"+subStr]; !ok {
+			break
+		}
 
 		var description string
-		val, ok := m["SnapshotDescription"+subStringGenerator(count-1)]
+		val, ok := m["SnapshotDescription"+subStr]
 		if ok {
 			description = val.(string)
 		} else {
@@ -333,7 +337,7 @@ func (vb *VBox) VMInfo(uuidOrVmName string) (machine *VirtualMachine, err error)
 		}
 
 		var name string
-		val, ok = m["SnapshotName"+subStringGenerator(count-1)]
+		val, ok = m["SnapshotName"+subStr]
 		if ok {
 			name = val.(string)
 		} else {
@@ -344,7 +348,10 @@ func (vb *VBox) VMInfo(uuidOrVmName string) (machine *VirtualMachine, err error)
 			Name:        name,
 			Description: description,
 		})
+		subStr = subStringGenerator(count)
+		count++
 	}
+
 	vm.Spec.Snapshots = listOfSnapshots
 
 	_, ok := m["CurrentSnapshotName"]
