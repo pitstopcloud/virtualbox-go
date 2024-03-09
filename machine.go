@@ -320,7 +320,7 @@ func (vb *VBox) VMInfo(uuidOrVmName string) (machine *VirtualMachine, err error)
 		return result
 	}
 
-	listOfSnapshots := make([]Snapshot, 0, 3)
+	listOfSnapshots := make([]Snapshot, 0, 10)
 	count := 0
 	subStr := ""
 	for {
@@ -336,20 +336,12 @@ func (vb *VBox) VMInfo(uuidOrVmName string) (machine *VirtualMachine, err error)
 			description = ""
 		}
 
-		var name string
-		val, ok = m["SnapshotName"+subStr]
-		if ok {
-			name = val.(string)
-		} else {
-			name = ""
-		}
-
 		listOfSnapshots = append(listOfSnapshots, Snapshot{
-			Name:        name,
+			Name:        m["SnapshotName"+subStr].(string),
 			Description: description,
 		})
-		subStr = subStringGenerator(count)
 		count++
+		subStr = subStringGenerator(count)
 	}
 
 	vm.Spec.Snapshots = listOfSnapshots
