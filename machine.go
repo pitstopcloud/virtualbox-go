@@ -312,9 +312,9 @@ func (vb *VBox) VMInfo(uuidOrVmName string) (machine *VirtualMachine, err error)
 		return sub_string
 	}
 
-	subStringGenerator := func(count int) string {
+	subStringGenerator := func(cnt int) string {
 		result := ""
-		for i := 0; i < count; i++ {
+		for i := 0; i < cnt; i++ {
 			result += "-1"
 		}
 		return result
