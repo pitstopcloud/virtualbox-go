@@ -70,6 +70,11 @@ type StorageController struct {
 	Bootable  string //on, off
 }
 
+type Snapshot struct {
+	Name        string
+	Description string
+}
+
 type CPU struct {
 	Count int
 }
@@ -140,6 +145,8 @@ type VirtualMachineSpec struct {
 	StorageControllers []StorageController
 	Boot               []BootDevice
 	State              VirtualMachineState
+	Snapshots          []Snapshot
+	CurrentSnapshot    Snapshot
 }
 
 type VirtualMachine struct {
