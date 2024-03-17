@@ -8,7 +8,7 @@ import (
 )
 
 func (vb *VBox) PortForwarding(vm *VirtualMachine, rule PortForwarding) error {
-	_, err := vb.manage("modifyvm", vm.UUIDOrName(), fmt.Sprintf("--natpf%d \"%v,%v,%v,%v,%v,%v\"", rule.Index), fmt.Sprintf("\"%v,%v,%v,%v,%v,%v\"", rule.Name, string(rule.Protocol), rule.HostIP, rule.HostPort, rule.GuestIP, rule.GuestPort))
+	_, err := vb.manage("modifyvm", vm.UUIDOrName(), fmt.Sprintf("--natpf%d", rule.Index), fmt.Sprintf("\"%v,%v,%v,%v,%v,%v\"", rule.Name, string(rule.Protocol), rule.HostIP, rule.HostPort, rule.GuestIP, rule.GuestPort))
 	return err
 }
 
