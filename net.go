@@ -4,8 +4,19 @@ import (
 	"fmt"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 )
+
+func (vb *VBox) PortForwarding(vm *VirtualMachine, rule PortForwarding) error {
+	_, err := vb.manage("modifyvm", vm.UUIDOrName(), fmt.Sprintf("--natpf%d \"%v,%v,%v,%v,%v,%v\"", strconv.Itoa(rule.Index), rule.Name, string(rule.Protocol), rule.HostIP, strconv.Itoa(rule.HostPort), rule.GuestIP, strconv.Itoa(rule.GuestPort)))
+	return err
+}
+
+func (vb *VBox) PortForwardingDelete(vm *VirtualMachine, index int, name string) error {
+	_, err := vb.manage("modifyvm", vm.UUIDOrName(), fmt.Sprintf("--natpf%d", strconv.Itoa(index)), "delete", name)
+	return err
+}
 
 func (vb *VBox) HostOnlyNetInfo() ([]Network, error) {
 	out, err := vb.manage("list", "hostonlyifs")
