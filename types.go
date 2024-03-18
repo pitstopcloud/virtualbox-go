@@ -118,7 +118,7 @@ type NIC struct {
 	BootPrio        int
 	PromiscuousMode string
 	MAC             string //auto assigns mac automatically
-	PortForwafding PortForwarding
+	PortForwarding []PortForwarding
 }
 
 type NetProtocol string
