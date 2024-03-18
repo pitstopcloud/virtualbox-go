@@ -7,6 +7,16 @@ import (
 	"strings"
 )
 
+func (vb *VBox) PortForwarding(vm *VirtualMachine, rule PortForwarding) error {
+	_, err := vb.manage("modifyvm", vm.UUIDOrName(), fmt.Sprintf("--natpf%d", rule.Index), fmt.Sprintf("%v,%v,%v,%v,%v,%v", rule.Name, string(rule.Protocol), rule.HostIP, rule.HostPort, rule.GuestIP, rule.GuestPort))
+	return err
+}
+
+func (vb *VBox) PortForwardingDelete(vm *VirtualMachine, index int, name string) error {
+	_, err := vb.manage("modifyvm", vm.UUIDOrName(), fmt.Sprintf("--natpf%d", index), "delete", name)
+	return err
+}
+
 func (vb *VBox) HostOnlyNetInfo() ([]Network, error) {
 	out, err := vb.manage("list", "hostonlyifs")
 	if err != nil {

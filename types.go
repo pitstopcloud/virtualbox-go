@@ -120,6 +120,23 @@ type NIC struct {
 	MAC             string //auto assigns mac automatically
 }
 
+type NetProtocol string
+
+const (
+	TCP = NetProtocol("tcp")
+	UDP = NetProtocol("udp")
+)
+
+type PortForwarding struct {
+	Index     int
+	Name      string
+	Protocol  NetProtocol
+	HostIP    string
+	HostPort  int
+	GuestIP   string
+	GuestPort int
+}
+
 type Network struct {
 	GUID       string
 	Name       string
