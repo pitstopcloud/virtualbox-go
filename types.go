@@ -118,7 +118,7 @@ type NIC struct {
 	BootPrio        int
 	PromiscuousMode string
 	MAC             string //auto assigns mac automatically
-	PortForwarding []PortForwarding
+	PortForwarding  []PortForwarding
 }
 
 type NetProtocol string
@@ -165,6 +165,7 @@ type VirtualMachineSpec struct {
 	State              VirtualMachineState
 	Snapshots          []Snapshot
 	CurrentSnapshot    Snapshot
+	DragAndDrop        string
 }
 
 type VirtualMachine struct {

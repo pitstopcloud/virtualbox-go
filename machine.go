@@ -162,6 +162,8 @@ func (vb *VBox) ModifyVM(vm *VirtualMachine, parameters []string) error {
 					args = append(args, fmt.Sprintf("--nat-network%d", nic.Index), nic.NetworkName)
 				}
 			}
+		case "drag_and_drop":
+			args = append(args, fmt.Sprintf("--drag-and-drop=%s", vm.Spec.DragAndDrop))
 		default:
 			return errors.New("Invalid parameter in the arguments")
 		}
@@ -170,8 +172,8 @@ func (vb *VBox) ModifyVM(vm *VirtualMachine, parameters []string) error {
 	return err
 }
 
-func (vb *VBox) ControlVM(vm *VirtualMachine, state string) (string, error) {
-	switch state {
+func (vb *VBox) ControlVM(vm *VirtualMachine, option string) (string, error) {
+	switch option {
 	case "running":
 		return vb.manage("startvm", vm.UUIDOrName(), "--type", "headless")
 	case "poweroff":
@@ -184,9 +186,12 @@ func (vb *VBox) ControlVM(vm *VirtualMachine, state string) (string, error) {
 		return vb.manage("controlvm", vm.UUIDOrName(), "reset")
 	case "save":
 		return vb.manage("controlvm", vm.UUIDOrName(), "savestate")
+	case "draganddrop":
+		return vb.manage("controlvm", vm.UUIDOrName(), "draganddrop", vm.Spec.DragAndDrop)
 	default:
-		return "", errors.New("Invalid state")
+		return "", errors.New("Invalid option")
 	}
+
 }
 
 // Functions over modifyvm
@@ -366,6 +371,14 @@ func (vb *VBox) VMInfo(uuidOrVmName string) (machine *VirtualMachine, err error)
 		vm.Spec.CurrentSnapshot.Description = ""
 	}
 	//------------------------------------
+
+	//draganddrop
+	val, ok = m["draganddrop"]
+	if ok {
+		vm.Spec.DragAndDrop = val.(string)
+	} else {
+		vm.Spec.DragAndDrop = "disabled"
+	}
 
 	// fill in storage details
 	vm.Spec.StorageControllers = make([]StorageController, 0, 2)
