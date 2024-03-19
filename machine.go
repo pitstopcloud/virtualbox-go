@@ -164,7 +164,7 @@ func (vb *VBox) ModifyVM(vm *VirtualMachine, parameters []string) error {
 			}
 		case "drag_and_drop":
 			args = append(args, fmt.Sprintf("--drag-and-drop=%s", vm.Spec.DragAndDrop))
-		case "climboard":
+		case "clipboard":
 			args = append(args, fmt.Sprintf("--clipboard-mode=%s", vm.Spec.Clipboard))
 		default:
 			return errors.New("Invalid parameter in the arguments")
