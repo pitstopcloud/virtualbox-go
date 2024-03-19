@@ -166,6 +166,7 @@ type VirtualMachineSpec struct {
 	Snapshots          []Snapshot
 	CurrentSnapshot    Snapshot
 	DragAndDrop        string
+	Clipboard          string
 }
 
 type VirtualMachine struct {

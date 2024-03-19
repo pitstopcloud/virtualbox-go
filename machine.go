@@ -164,6 +164,8 @@ func (vb *VBox) ModifyVM(vm *VirtualMachine, parameters []string) error {
 			}
 		case "drag_and_drop":
 			args = append(args, fmt.Sprintf("--drag-and-drop=%s", vm.Spec.DragAndDrop))
+		case "climboard":
+			args = append(args, fmt.Sprintf("--clipboard-mode=%s", vm.Spec.Clipboard))
 		default:
 			return errors.New("Invalid parameter in the arguments")
 		}
@@ -188,6 +190,8 @@ func (vb *VBox) ControlVM(vm *VirtualMachine, option string) (string, error) {
 		return vb.manage("controlvm", vm.UUIDOrName(), "savestate")
 	case "draganddrop":
 		return vb.manage("controlvm", vm.UUIDOrName(), "draganddrop", vm.Spec.DragAndDrop)
+	case "clipboard mode":
+		return vb.manage("controlvm", vm.UUIDOrName(), "clipboard mode", vm.Spec.Clipboard)
 	default:
 		return "", errors.New("Invalid option")
 	}
@@ -378,6 +382,14 @@ func (vb *VBox) VMInfo(uuidOrVmName string) (machine *VirtualMachine, err error)
 		vm.Spec.DragAndDrop = val.(string)
 	} else {
 		vm.Spec.DragAndDrop = "disabled"
+	}
+
+	//clipboard
+	val, ok = m["clipboard"]
+	if ok {
+		vm.Spec.Clipboard = val.(string)
+	} else {
+		vm.Spec.Clipboard = "disabled"
 	}
 
 	// fill in storage details
