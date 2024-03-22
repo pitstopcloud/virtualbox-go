@@ -191,7 +191,7 @@ func (vb *VBox) ControlVM(vm *VirtualMachine, option string) (string, error) {
 	case "draganddrop":
 		return vb.manage("controlvm", vm.UUIDOrName(), "draganddrop", vm.Spec.DragAndDrop)
 	case "clipboard mode":
-		return vb.manage("controlvm", vm.UUIDOrName(), "clipboard mode", vm.Spec.Clipboard)
+		return vb.manage("controlvm", vm.UUIDOrName(), "clipboard", "mode", vm.Spec.Clipboard)
 	default:
 		return "", errors.New("Invalid option")
 	}
